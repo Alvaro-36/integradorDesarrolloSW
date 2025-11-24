@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotEmpty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.example.validation.ValidDnaSequence;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class DnaRequestDTO {
     @NotNull(message = "El ADN no puede ser nulo")
     @NotEmpty(message = "El ADN no puede estar vacío")
+    @ValidDnaSequence
     @Schema(
         description = "Matriz de ADN a analizar",
         example = "[\"ATGCGA\",\"CAGTGC\",\"TTATGT\",\"AGAAGG\",\"CCCCTA\",\"TCACTG\"]"
