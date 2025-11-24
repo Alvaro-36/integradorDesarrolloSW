@@ -19,16 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/mutant")
+@RequiredArgsConstructor
 @Tag(name ="Controlador de Mutantes")
 
 public class MutantController {
 
     private final MutantService mutantService;
 
-
-    public MutantController(MutantService mutantService) {
-        this.mutantService = mutantService;
-    }
 
     @Operation(summary = "Comprueba si el adn ingresado es de un mutante y devuelve un booleano")
     @ApiResponse(responseCode = "200", description = "El ADN pertenece a un mutante")
@@ -40,10 +37,15 @@ public class MutantController {
 
     @GetMapping("/stats")
     public ResponseEntity<ResponseStatsDTO> getStats() {
+
+        long countMutant = mutantService.countAllMutants();
+        long countHuman = mutantService.countAllHumans();
+
+        double ratio = countHuman == 0 ? 0 : (double) countMutant / countHuman;
         ResponseStatsDTO response = ResponseStatsDTO.builder()
                 .cantHumanos(mutantService.countAllHumans())
                 .cantMutantes(mutantService.countAllMutants())
-                .ratio(mutantService.findAllMutants().size()/(double)mutantService.findAllHumans().size())
+                .ratio(ratio)
                 .build();
         return ResponseEntity.ok(response);
     }

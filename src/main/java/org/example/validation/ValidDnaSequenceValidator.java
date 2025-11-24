@@ -30,13 +30,11 @@ public class ValidDnaSequenceValidator implements ConstraintValidator<ValidDnaSe
 
             // 3. Validar Caracteres (Solo A, T, C, G) usando Regex
             // Explicación: ^ = inicio, [ATCG]+ = uno o más de estos caracteres, $ = fin
-            // case-insensitive se puede manejar normalizando antes o agregando (?i)
-            if (!row.matches("[ATCGatcg]+")) {
+            if (!row.matches("[ATCG]+")) {
                 return false;
             }
         }
 
         return true;
     }
-
 }

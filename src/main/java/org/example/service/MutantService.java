@@ -53,8 +53,8 @@ public class MutantService {
                             .isMutant(isMutant)
                             .build()
             );
+            return isMutant;
         }
-        return true;
     }
     private String hashDna(String[] dna){
         String dnaSequence = String.join("", dna);

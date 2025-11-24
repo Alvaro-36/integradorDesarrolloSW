@@ -51,7 +51,7 @@ class MutantControllerTest {
 
         when(mutantService.analyzeDna(any(String[].class))).thenReturn(true);
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -75,7 +75,7 @@ class MutantControllerTest {
 
         when(mutantService.analyzeDna(any(String[].class))).thenReturn(false);
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
@@ -88,7 +88,7 @@ class MutantControllerTest {
             .dna(null)
             .build();
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -101,7 +101,7 @@ class MutantControllerTest {
             .dna(new String[]{})
             .build();
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -120,7 +120,7 @@ class MutantControllerTest {
             .dna(dna)
             .build();
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -142,7 +142,7 @@ class MutantControllerTest {
             .dna(dna)
             .build();
 
-        mockMvc.perform(post("/mutant/")
+        mockMvc.perform(post("/mutant")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -194,5 +194,116 @@ class MutantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cantMutantes").value(10))
                 .andExpect(jsonPath("$.cantHumanos").value(0));
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 400 cuando el ADN contiene números")
+    void testCheckMutant_ReturnBadRequest_WhenDnaContainsNumbers() throws Exception {
+        String[] dna = {"1234", "5678", "9012", "3456"};
+        DnaRequestDTO request = DnaRequestDTO.builder().dna(dna).build();
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 400 cuando el ADN contiene minúsculas")
+    void testCheckMutant_ReturnBadRequest_WhenDnaContainsLowercase() throws Exception {
+        String[] dna = {"atgc", "cagt", "ttat", "agaa"};
+        DnaRequestDTO request = DnaRequestDTO.builder().dna(dna).build();
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 400 cuando el ADN contiene null")
+    void testCheckMutant_ReturnBadRequest_WhenDnaContainsNull() throws Exception {
+        String[] dna = {"ATGC", null, "TTAT", "AGAA"};
+        DnaRequestDTO request = DnaRequestDTO.builder().dna(dna).build();
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 400 cuando el ADN contiene vacíos")
+    void testCheckMutant_ReturnBadRequest_WhenDnaContainsEmpty() throws Exception {
+        String[] dna = {"ATGC", "", "TTAT", "AGAA"};
+        DnaRequestDTO request = DnaRequestDTO.builder().dna(dna).build();
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /mutant/stats - Retorna 200 con solo humanos")
+    void testGetStats_ReturnOk_WithOnlyHumans() throws Exception {
+        when(mutantService.countAllMutants()).thenReturn(0L);
+        when(mutantService.countAllHumans()).thenReturn(10L);
+        mockMvc.perform(get("/mutant/stats")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cantMutantes").value(0))
+                .andExpect(jsonPath("$.cantHumanos").value(10))
+                .andExpect(jsonPath("$.ratio").value(0.0));
+    }
+
+    @Test
+    @DisplayName("GET /mutant/stats - Retorna 200 con ratio 1.0")
+    void testGetStats_ReturnOk_WithRatioOne() throws Exception {
+        when(mutantService.countAllMutants()).thenReturn(10L);
+        when(mutantService.countAllHumans()).thenReturn(10L);
+        mockMvc.perform(get("/mutant/stats")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ratio").value(1.0));
+    }
+
+    @Test
+    @DisplayName("GET /mutant/stats - Retorna 200 con ratio mayor a 1")
+    void testGetStats_ReturnOk_WithRatioGreaterThanOne() throws Exception {
+        when(mutantService.countAllMutants()).thenReturn(20L);
+        when(mutantService.countAllHumans()).thenReturn(10L);
+        mockMvc.perform(get("/mutant/stats")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ratio").value(2.0));
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 400 con JSON malformado")
+    void testCheckMutant_ReturnBadRequest_MalformedJson() throws Exception {
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"dna\": [\"ATGC\", \"CAGT\"] "))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /mutant/ - Retorna 415 con Content-Type incorrecto")
+    void testCheckMutant_ReturnUnsupportedMediaType() throws Exception {
+        mockMvc.perform(post("/mutant")
+                .contentType(MediaType.TEXT_PLAIN)
+                .content("ATGC"))
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    @Test
+    @DisplayName("GET /mutant/ - Retorna 405 Method Not Allowed")
+    void testCheckMutant_MethodNotAllowed() throws Exception {
+        mockMvc.perform(get("/mutant"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("POST /mutant/stats - Retorna 405 Method Not Allowed")
+    void testGetStats_MethodNotAllowed() throws Exception {
+        mockMvc.perform(post("/mutant/stats"))
+                .andExpect(status().isMethodNotAllowed());
     }
 }
