@@ -22,6 +22,10 @@ dependencies {
     // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
+    // ModelMapper
+    implementation 'org.modelmapper:modelmapper:3.2.0'
+    implementation 'org.jetbrains:annotations:24.0.0'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
