@@ -11,9 +11,9 @@ import lombok.Setter;
 public class ResponseStatsDTO {
 
     @Schema(description = "Cantidad de mutantes encontrados", example = "2")
-    private int cantMutantes;
+    private Long cantMutantes;
     @Schema(description = "Cantidad de humanos encontrados", example = "2")
-    private int cantHumanos;
+    private Long cantHumanos;
     @Schema(description = "Ratio de mutantes sobre humanos", example = "3.2")
     private double ratio;
 

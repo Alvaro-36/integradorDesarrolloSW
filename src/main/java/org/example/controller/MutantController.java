@@ -38,8 +38,8 @@ public class MutantController {
     @GetMapping("/stats")
     public ResponseEntity<ResponseStatsDTO> getStats() {
         ResponseStatsDTO response = ResponseStatsDTO.builder()
-                .cantHumanos(mutantService.findAllHumans().size())
-                .cantMutantes(mutantService.findAllMutants().size())
+                .cantHumanos(mutantService.countAllHumans())
+                .cantMutantes(mutantService.countAllMutants())
                 .ratio(mutantService.findAllMutants().size()/(double)mutantService.findAllHumans().size())
                 .build();
         return ResponseEntity.ok(response);

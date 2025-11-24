@@ -2,10 +2,12 @@ package org.example.service;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.example.entity.DnaRecord;
 import org.example.repository.DnaRecordRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,17 +25,22 @@ public class MutantService {
     public List<DnaRecord> findAllMutants(){
         return dnaRecordRepository.findByIsMutant(true);
     }
-
+    public Long countAllHumans(){
+        return dnaRecordRepository.countByIsMutant(false);
+    }
+    public Long countAllMutants(){
+        return dnaRecordRepository.countByIsMutant(true);
+    }
     public List<DnaRecord> findAllHumans(){
         return dnaRecordRepository.findByIsMutant(false);
     }
 
-    public DnaRecord findByHash(int dnaHash){
+    public DnaRecord findByHash(String dnaHash){
         return dnaRecordRepository.findByDnaHash(dnaHash);
     }
     public boolean analyzeDna(@org.jetbrains.annotations.NotNull String[] dna){
 
-        int dnaHash = java.util.Arrays.deepHashCode(dna);
+        String dnaHash = hashDna(dna);
         DnaRecord dnaBuscado= dnaRecordRepository.findByDnaHash(dnaHash);
         if(dnaBuscado != null){
             return dnaBuscado.isMutant();
@@ -42,11 +49,15 @@ public class MutantService {
             dnaRecordRepository.save(
                     DnaRecord.builder()
                             .dnaHash(dnaHash)
+                            .createdAt(LocalDateTime.now())
                             .isMutant(isMutant)
                             .build()
             );
         }
         return true;
     }
-
+    private String hashDna(String[] dna){
+        String dnaSequence = String.join("", dna);
+        return DigestUtils.sha256Hex(dnaSequence);
+    }
 }

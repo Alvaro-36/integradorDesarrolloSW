@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface DnaRecordRepository extends JpaRepository<DnaRecord, Long> {
     public List<DnaRecord> findByIsMutant(boolean isMutant);
 
-    public DnaRecord findByDnaHash(int dnaHash);
+    public Long countByIsMutant(boolean isMutant);
+
+    public DnaRecord findByDnaHash(String dnaHash);
 
 }

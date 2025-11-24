@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -19,5 +21,7 @@ public class DnaRecord {
     private boolean isMutant;
 
     @Column(name = "dna_hash", unique = true, nullable = false)
-    private int dnaHash;
+    private String dnaHash;
+
+    private LocalDateTime createdAt;
 }
